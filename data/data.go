@@ -13,14 +13,14 @@ const (
 		CREATE TABLE IF NOT EXISTS games (
 			name TEXT NOT NULL PRIMARY KEY,
 			note TEXT,
-			added_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+			beaten_on DATE
 		);`
 )
 
 type Game struct {
-	Name      string
-	Note      string
-	Timestamp time.Time
+	Name     string
+	Note     string
+	BeatenOn time.Date
 }
 
 // OpenDB opens database and, if successful, returns a reference to it.
@@ -49,13 +49,13 @@ func AddRecord(game Game) error {
 	if err != nil {
 		return err
 	}
-	stmt, err := tx.Prepare("INSERT INTO games (name, note) VALUES (?, ?)")
+	stmt, err := tx.Prepare("INSERT INTO games (name, note, beaten_on) VALUES (?, ?, ?)")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(game.Name, game.Note)
+	_, err = stmt.Exec(game.Name, game.Note, game.BeatenOn)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func GetAllGames() (games []Game, err error) {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT name, note, added_at FROM games ORDER BY name")
+	rows, err := db.Query("SELECT name, note, beaten_on FROM games ORDER BY name")
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func GetAllGames() (games []Game, err error) {
 
 	for rows.Next() {
 		var curr Game
-		err := rows.Scan(&curr.Name, &curr.Note, &curr.Timestamp)
+		err := rows.Scan(&curr.Name, &curr.Note, &curr.BeatenOn)
 		if err != nil {
 			return nil, err
 		}
