@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"text/template"
+
+	"github.com/tsukanov/beaten-games/data"
 )
 
 func main() {
@@ -18,5 +20,9 @@ func main() {
 
 func IndexHandler(w http.ResponseWriter, req *http.Request) {
 	t, _ := template.ParseFiles("templates/index.html")
-	t.Execute(w, nil)
+	games, err := data.GetAllGames()
+	if err != nil {
+		log.Fatal("Failed to get games.", err)
+	}
+	t.Execute(w, games)
 }

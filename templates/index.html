@@ -7,7 +7,15 @@
 
 <h1>Beaten Games</h1>
 
-Hello there! :)
+{{ if . }}
+  <ol>
+    {{ range . }}
+      <li>{{ .Name }}</li>
+  	{{ end }}
+  </ol>
+{{ else }}
+  Didn't beat any games yet. :(
+{{ end }}
 
 </body>
 </html>
