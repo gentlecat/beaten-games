@@ -24,5 +24,9 @@ func IndexHandler(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Fatal("Failed to get games.", err)
 	}
-	t.Execute(w, games)
+	t.Execute(w, struct {
+		Games []data.Game
+	}{
+		games,
+	})
 }

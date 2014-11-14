@@ -7,11 +7,11 @@
 
 <h1>Beaten Games</h1>
 
-{{ if . }}
+{{ if .Games }}
   <ol>
-    {{ range . }}
+    {{ range .Games }}
       <li>{{ .Name }}</li>
-  	{{ end }}
+    {{ end }}
   </ol>
 {{ else }}
   Didn't beat any games yet. :(
