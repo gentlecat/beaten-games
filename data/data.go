@@ -20,7 +20,7 @@ const (
 type Game struct {
 	Name     string
 	Note     string
-	BeatenOn time.Date
+	BeatenOn time.Time
 }
 
 // OpenDB opens database and, if successful, returns a reference to it.
