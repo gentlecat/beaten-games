@@ -1,15 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Beaten Games</title>
-</head>
-<body>
+{{ define "title" }}Add a game - Beaten Games{{ end }}
 
-<h1>Beaten Games</h1>
+{{ define "content" }}
 
-<h2>Add a game</h2>
+	<h2>Add a game</h2>
 
-<em>Not implemented yet. :(</em>
+	<p><em>Fill in the form and hit the butan!</em></p>
 
-</body>
-</html>
+	<form method="POST">
+		<label for="name">Game:</label><br />
+		<input id="name" type="text" name="name" required />
+		<br /><br />
+		<label for="beaten_on">Beaten on:</label><br />
+		<input id="beaten_on" type="date" name="beaten_on" />
+		<br /><br />
+		<label for="note">Note:</label><br />
+		<textarea id="note" name="note" rows="5"></textarea>
+		<br /><br />
+		<input type="submit" value="BUTAN" />
+	</form>
+
+{{ end }}

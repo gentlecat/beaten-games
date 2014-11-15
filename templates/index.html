@@ -1,21 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Beaten Games</title>
-</head>
-<body>
+{{ define "title" }}Beaten Games{{ end }}
 
-<h1>Beaten Games</h1>
+{{ define "content" }}
 
-{{ if .Games }}
-  <ol>
-    {{ range .Games }}
-      <li>{{ .Name }}</li>
-    {{ end }}
-  </ol>
-{{ else }}
-  Didn't beat any games yet. :(
+	{{ if .Games }}
+	  <ol>
+	    {{ range .Games }}
+	      <li>{{ .Name }}</li>
+	    {{ end }}
+	  </ol>
+	{{ else }}
+	  Didn't beat any games yet. :(
+	{{ end }}
+
 {{ end }}
-
-</body>
-</html>

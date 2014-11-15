@@ -38,7 +38,7 @@ func OpenDB() (*sql.DB, error) {
 	return db, nil
 }
 
-func AddRecord(game Game) error {
+func AddGame(game Game) error {
 	db, err := OpenDB()
 	if err != nil {
 		return err
