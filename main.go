@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"text/template"
+	"time"
 
 	"code.google.com/p/goconf/conf"
 	"github.com/gorilla/mux"
@@ -40,6 +42,8 @@ func makeRouter() *mux.Router {
 	r.HandleFunc("/", indexHandler)
 	r.HandleFunc("/games/{id:[0-9]+}", gameHandler)
 	r.HandleFunc("/games/add", addHandler).Methods("GET", "POST")
+	r.HandleFunc("/games/quick-add", quickAddHandler).Methods("POST")
+	r.HandleFunc("/games/delete", deleteHandler).Methods("POST")
 
 	r.HandleFunc("/suggest/games", suggestGamesHandler)
 
@@ -65,13 +69,14 @@ func executeTemplates(wr io.Writer, data interface{}, filenames ...string) error
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	games, err := data.GetAllGames()
 	if err != nil {
+		log.Println(err)
 		http.Error(w, "Failed to get games.", http.StatusInternalServerError)
 		return
 	}
 	err = executeTemplates(w, struct{ Games []data.Game }{games},
 		"templates/index.html")
 	if err != nil {
-		http.Error(w, "Failed to execute template.", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return
 	}
 }
@@ -110,8 +115,25 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 		vals := r.Form
 		var game data.Game
 		game.Name = vals.Get("name")
-		game.Note = vals.Get("note")
-		//game.BeatenOn = r.Form["beaten_on"]
+		game.Note = sql.NullString{
+			String: vals.Get("note"),
+			Valid:  true,
+		}
+		if len(r.Form["beaten_on"][0]) > 0 {
+			parsed, err := time.Parse("2006-01-02", r.Form["beaten_on"][0])
+			if err != nil {
+				http.Error(w, "Failed to parse date.", http.StatusBadRequest)
+				return
+			}
+			game.BeatenOn = data.NullTime{
+				Time:  parsed,
+				Valid: true,
+			}
+		} else {
+			game.BeatenOn = data.NullTime{
+				Valid: true,
+			}
+		}
 
 		err = data.AddGame(game)
 		if err != nil {
@@ -121,6 +143,53 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 	}
+}
+
+func quickAddHandler(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Failed to parse submitted form.", http.StatusInternalServerError)
+		return
+	}
+	vals := r.Form
+	var game data.Game
+	game.Name = vals.Get("name")
+	game.Note = sql.NullString{
+		Valid: false,
+	}
+	game.BeatenOn = data.NullTime{
+		Time:  time.Now(),
+		Valid: true,
+	}
+
+	err = data.AddGame(game)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Failed to add a game.", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func deleteHandler(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Failed to parse submitted form.", http.StatusInternalServerError)
+		return
+	}
+	vals := r.Form
+	name := vals.Get("name")
+	rowsAffected, err := data.DeleteGame(vals.Get("name"))
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Failed to delete a game.", http.StatusInternalServerError)
+		return
+	}
+	if rowsAffected == 0 {
+		http.Error(w, "Can't find this game.", http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func suggestGamesHandler(w http.ResponseWriter, r *http.Request) {

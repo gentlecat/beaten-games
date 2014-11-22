@@ -19,4 +19,18 @@
 		<input type="submit" value="BUTAN" />
 	</form>
 
+	<script>
+		var suggestions = new Bloodhound({
+		  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+		  queryTokenizer: Bloodhound.tokenizers.whitespace,
+		  remote: '/suggest/games?q=%QUERY'
+		});
+		suggestions.initialize();
+
+		$('#name').typeahead(null, {
+		  source: suggestions.ttAdapter(),
+		  name: "eh",
+		  displayKey: 'name'
+		});
+	</script>
 {{ end }}

@@ -2,6 +2,7 @@ package data
 
 import (
 	"database/sql"
+	"log"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -13,14 +14,19 @@ const (
 		CREATE TABLE IF NOT EXISTS games (
 			name TEXT NOT NULL PRIMARY KEY,
 			note TEXT,
-			beaten_on DATE
+			beaten_on TIMESTAMP
 		);`
 )
 
+type NullTime struct {
+	Time  time.Time
+	Valid bool // Valid is true if Time is not NULL
+}
+
 type Game struct {
 	Name     string
-	Note     string
-	BeatenOn time.Time
+	Note     sql.NullString
+	BeatenOn NullTime
 }
 
 // OpenDB opens database and, if successful, returns a reference to it.
@@ -49,19 +55,59 @@ func AddGame(game Game) error {
 	if err != nil {
 		return err
 	}
-	stmt, err := tx.Prepare("INSERT INTO games (name, note, beaten_on) VALUES (?, ?, ?)")
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
 
-	_, err = stmt.Exec(game.Name, game.Note, game.BeatenOn)
-	if err != nil {
-		return err
+	if game.BeatenOn.Valid { // No time specified
+		stmt, err := tx.Prepare("INSERT INTO games (name, note, beaten_on) VALUES (?, ?, ?)")
+		if err != nil {
+			return err
+		}
+		defer stmt.Close()
+		_, err = stmt.Exec(game.Name, game.Note, game.BeatenOn.Time)
+		if err != nil {
+			return err
+		}
+		tx.Commit()
+	} else {
+		stmt, err := tx.Prepare("INSERT INTO games (name, note) VALUES (?, ?)")
+		if err != nil {
+			return err
+		}
+		defer stmt.Close()
+		_, err = stmt.Exec(game.Name, game.Note)
+		if err != nil {
+			return err
+		}
+		tx.Commit()
 	}
-	tx.Commit()
 
 	return nil
+}
+
+func DeleteGame(name string) (int64, error) {
+	log.Println(name)
+	db, err := OpenDB()
+	if err != nil {
+		return 0, err
+	}
+	defer db.Close()
+
+	tx, err := db.Begin()
+	if err != nil {
+		return 0, err
+	}
+
+	stmt, err := tx.Prepare("DELETE FROM games WHERE name = ?")
+	if err != nil {
+		return 0, err
+	}
+	defer stmt.Close()
+	result, err := stmt.Exec(name)
+	if err != nil {
+		return 0, err
+	}
+	tx.Commit()
+	rowsAffected, _ := result.RowsAffected()
+	return rowsAffected, nil
 }
 
 func GetAllGames() (games []Game, err error) {
@@ -71,7 +117,7 @@ func GetAllGames() (games []Game, err error) {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT name, note, beaten_on FROM games ORDER BY name")
+	rows, err := db.Query("SELECT name, note, beaten_on FROM games ORDER BY beaten_on DESC")
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +125,7 @@ func GetAllGames() (games []Game, err error) {
 
 	for rows.Next() {
 		var curr Game
-		err := rows.Scan(&curr.Name, &curr.Note, &curr.BeatenOn)
+		err := rows.Scan(&curr.Name, &curr.Note, &curr.BeatenOn.Time)
 		if err != nil {
 			return nil, err
 		}
