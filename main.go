@@ -158,8 +158,7 @@ func quickAddHandler(w http.ResponseWriter, r *http.Request) {
 		Valid: false,
 	}
 	game.BeatenOn = data.NullTime{
-		Time:  time.Now(),
-		Valid: true,
+		Valid: false,
 	}
 
 	err = data.AddGame(game)
@@ -178,7 +177,6 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	vals := r.Form
-	name := vals.Get("name")
 	rowsAffected, err := data.DeleteGame(vals.Get("name"))
 	if err != nil {
 		log.Println(err)

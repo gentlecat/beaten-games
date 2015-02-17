@@ -10,4 +10,4 @@ Another useful thing might be integration with Steam Web API and other interesti
 
 ## Goal
 
-This is [my](https://roman.zone) side project that I'm doing for fun. Trying to solve problem that I have and learn something new while doing that. This project is completely open source.
+This is [my](https://roman.zone) side project that I'm doing for fun. Trying to solve problem that I have and learn something new while I'm working on that. This project is completely open source.

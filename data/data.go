@@ -2,7 +2,6 @@ package data
 
 import (
 	"database/sql"
-	"log"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -14,7 +13,8 @@ const (
 		CREATE TABLE IF NOT EXISTS games (
 			name TEXT NOT NULL PRIMARY KEY,
 			note TEXT,
-			beaten_on TIMESTAMP
+			beaten_on DATE
+			added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		);`
 )
 
@@ -84,7 +84,6 @@ func AddGame(game Game) error {
 }
 
 func DeleteGame(name string) (int64, error) {
-	log.Println(name)
 	db, err := OpenDB()
 	if err != nil {
 		return 0, err
@@ -125,7 +124,11 @@ func GetAllGames() (games []Game, err error) {
 
 	for rows.Next() {
 		var curr Game
-		err := rows.Scan(&curr.Name, &curr.Note, &curr.BeatenOn.Time)
+		var tempTime interface{}
+		err := rows.Scan(&curr.Name, &curr.Note, &tempTime)
+		if tempTime == nil {
+			curr.BeatenOn.Time, curr.BeatenOn.Valid = tempTime.(time.Time)
+		}
 		if err != nil {
 			return nil, err
 		}

@@ -33,7 +33,8 @@
 		}
 
 		$("#quick-add").submit(function() {
-			gamesList.prepend("<li data-game=" + $("#name").val() + ">" + $("#name").val() + "</li>");
+			gamesList.prepend('<li class="text-muted" data-game=' + $("#name").val() + '>' + $("#name").val() + '</li>');			
+		    var newGameItem = gamesList.children().first();
 			refreshNoGamesSign();
 			$.ajax({
 				type: "POST",
@@ -41,14 +42,14 @@
 				data: $("#quick-add").serialize()
 			})
 			.done(function() {
-	    	// Make item not grey
-	    	var newGameItem = gamesList.children().first();
-	    	newGameItem.append(' <em>(<a href="javascript:void(0)" onclick="deleteGame(this);">delete</a>)</em>');
+		    	newGameItem.removeClass('text-muted')
+		    	newGameItem.append(' <em>(<a href="javascript:void(0)" onclick="deleteGame(this);">delete</a>)</em>');
 		    })
-			.fail(function(data, textStatus) {
-		    	// Make item red
-		    	// <abbr title="Failed to add this game :(">game title</abbr>
-		    		console.log(textStatus);
+			.fail(function(data, textStatus) {	
+		    	console.log(textStatus);
+		    	newGameItem.removeClass('text-muted')	
+		    	newGameItem.addClass('text-danger')
+		    	newGameItem.html('<abbr title="Failed to add this game :(">' + $("#name").val() + '</abbr>')
 		    });
 			$("#name").val("");
 			$("#name").focus();
@@ -60,7 +61,7 @@
 			var item = deleteBlock.parentNode;
 			var game = item.dataset.game;
 			item.removeChild(deleteBlock);
-		    // Make item grey
+		    item.className = item.className + 'text-muted';
 		    $.ajax({
 		    	type: "POST",
 		    	url: "/games/delete",
