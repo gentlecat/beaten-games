@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"code.google.com/p/goconf/conf"
+	"github.com/gentlecat/beaten-games/data"
+	"github.com/gentlecat/go-giantbomb"
 	"github.com/gorilla/mux"
-	"github.com/tsukanov/beaten-games/data"
-	"github.com/tsukanov/go-giantbomb"
 )
 
 func main() {
