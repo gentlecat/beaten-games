@@ -1,5 +1,7 @@
 # Beaten Games
 
+[![Build Status](https://travis-ci.org/gentlecat/beaten-games.svg)](https://travis-ci.org/gentlecat/beaten-games)
+
 ## Idea
 
 This project is meant to help you keep track of games that you've already beaten. You'd create a list of games and will be able to share it with other people.
