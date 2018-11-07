@@ -4,22 +4,21 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/dlintw/goconf"
+	"github.com/gorilla/mux"
+	"go.roman.zone/beaten-games/data"
+	"go.roman.zone/go-giantbomb"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
 	"text/template"
 	"time"
-
-	"code.google.com/p/goconf/conf"
-	"github.com/gentlecat/beaten-games/data"
-	"github.com/gentlecat/go-giantbomb"
-	"github.com/gorilla/mux"
 )
 
 func main() {
 	fmt.Println("Loading configuration...")
-	config, err := conf.ReadConfigFile("config.txt")
+	config, err := goconf.ReadConfigFile("config.txt")
 	if err != nil {
 		log.Fatal("Failed to load config file! ", err)
 	}
@@ -29,7 +28,7 @@ func main() {
 	}
 
 	fmt.Println("Starting server on localhost:8080...")
-	err = http.ListenAndServe(":8080", makeRouter())
+	err = http.ListenAndServe("localhost:8080", makeRouter())
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
