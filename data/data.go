@@ -24,9 +24,9 @@ type NullTime struct {
 }
 
 type Game struct {
-	Name     string
-	Note     sql.NullString
-	BeatenOn NullTime
+	Name     string         `json:"name"`
+	Note     sql.NullString `json:"note"`
+	BeatenOn NullTime       `json:"beaten_on"`
 }
 
 // OpenDB opens database and, if successful, returns a reference to it.
