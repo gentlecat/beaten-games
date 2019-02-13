@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { css } from '@emotion/core';
 import axios from 'axios';
+import { ListItem } from './ListItem';
 
 interface State {
   data: ListItem[] | undefined;
   loadingState: LoadingState;
 }
 
-interface ListItem {
+export interface ListItemInt {
   name: string;
   note: string;
   beatenOn: string;
@@ -41,10 +42,10 @@ export class GamesList extends Component<any, State> {
     this.setState({ data, loadingState: LoadingState.Loaded });
   };
 
-  private renderList = (games: ListItem[]) => {
+  private renderList = (games: ListItemInt[]) => {
     let items = [];
-    games.forEach(game => {
-      items.push(<li>{game.name}</li>);
+    games.forEach(g => {
+      items.push(<ListItem game={g} />);
     });
     return <ul>{items}</ul>;
   };
