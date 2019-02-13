@@ -1,0 +1,10 @@
+{
+  "defaultSeverity": "warning",
+  "extends": [
+    "tslint:recommended",
+    "tslint-microsoft-contrib",
+    "tslint-config-airbnb",
+    "tslint-config-prettier"
+  ],
+  "rulesDirectory": ["node_modules/tslint-microsoft-contrib"]
+}
