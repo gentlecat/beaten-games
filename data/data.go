@@ -2,8 +2,6 @@ package data
 
 import (
 	"database/sql"
-	"time"
-
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -13,20 +11,15 @@ const (
 		CREATE TABLE IF NOT EXISTS games (
 			name TEXT NOT NULL PRIMARY KEY,
 			note TEXT,
-			beaten_on DATE
+			beaten_on TIMESTAMP
 			added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		);`
 )
 
-type NullTime struct {
-	Time  time.Time
-	Valid bool // Valid is true if Time is not NULL
-}
-
-type Game struct {
-	Name     string         `json:"name"`
-	Note     sql.NullString `json:"note"`
-	BeatenOn NullTime       `json:"beaten_on"`
+type GameEntity struct {
+	Name     string
+	Note     sql.NullString
+	BeatenOn NullTime
 }
 
 // OpenDB opens database and, if successful, returns a reference to it.
@@ -44,7 +37,7 @@ func OpenDB() (*sql.DB, error) {
 	return db, nil
 }
 
-func AddGame(game Game) error {
+func AddGame(game GameEntity) error {
 	db, err := OpenDB()
 	if err != nil {
 		return err
@@ -109,7 +102,7 @@ func DeleteGame(name string) (int64, error) {
 	return rowsAffected, nil
 }
 
-func GetAllGames() (games []Game, err error) {
+func GetAllGames() (games []GameEntity, err error) {
 	db, err := OpenDB()
 	if err != nil {
 		return nil, err
@@ -123,17 +116,12 @@ func GetAllGames() (games []Game, err error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var curr Game
-		var tempTime interface{}
-		err := rows.Scan(&curr.Name, &curr.Note, &tempTime)
-		if tempTime == nil {
-			curr.BeatenOn.Time, curr.BeatenOn.Valid = tempTime.(time.Time)
-		}
+		var curr GameEntity
+		err := rows.Scan(&curr.Name, &curr.Note, &curr.BeatenOn)
 		if err != nil {
 			return nil, err
 		}
 		games = append(games, curr)
 	}
-	rows.Close()
 	return games, nil
 }

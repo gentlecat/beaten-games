@@ -117,7 +117,7 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	vals := r.Form
-	var game data.Game
+	var game data.GameEntity
 	game.Name = vals.Get("name")
 	game.Note = sql.NullString{
 		String: vals.Get("note"),
@@ -154,7 +154,7 @@ func quickAddHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	vals := r.Form
-	var game data.Game
+	var game data.GameEntity
 	game.Name = vals.Get("name")
 	game.Note = sql.NullString{
 		Valid: false,
@@ -218,10 +218,37 @@ func suggestGamesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
+type GameResponse struct {
+	Name     string    `json:"name"`
+	Note     string    `json:"note"`
+	BeatenOn time.Time `json:"beaten_on"`
+}
+
 func getGamesHandler(w http.ResponseWriter, r *http.Request) {
 	games, err := data.GetAllGames()
+	if err != nil {
+		http.Error(w, "Internal error.", http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
 
-	b, err := json.Marshal(games)
+	var output []GameResponse
+
+	for _, game := range games {
+		resp := GameResponse{
+			Name: game.Name,
+		}
+		if game.Note.Valid {
+			resp.Note = game.Note.String
+		}
+		if game.BeatenOn.Valid {
+			resp.BeatenOn = game.BeatenOn.Time
+		}
+
+		output = append(output, resp)
+	}
+
+	b, err := json.Marshal(output)
 	if err != nil {
 		http.Error(w, "Internal error.", http.StatusInternalServerError)
 		log.Println(err)
