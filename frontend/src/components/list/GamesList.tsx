@@ -47,7 +47,16 @@ export class GamesList extends Component<any, State> {
     games.forEach(g => {
       items.push(<ListItem game={g} />);
     });
-    return <ul>{items}</ul>;
+    return (
+      <div
+        css={css`
+          display: flex;
+          flex-direction: column;
+        `}
+      >
+        {items}
+      </div>
+    );
   };
 
   public render = () => {
