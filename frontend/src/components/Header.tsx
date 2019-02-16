@@ -9,7 +9,15 @@ export const Header = () => {
           font-size: 2em;
         `}
       >
-        Application
+        Game Collector <br />
+        <span
+          css={css`
+            font-size: 0.5em;
+            color: red;
+          `}
+        >
+          WIP
+        </span>
       </h1>
     </nav>
   );
