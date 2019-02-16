@@ -10,15 +10,23 @@ export const ListItem = ({ game }) => {
         margin-top: 20px;
       `}
     >
-      <div css={css`
-        flex: 1;
-        font-weight: bold;
-      `}>{game['name']}</div>
-      <div css={css`
-        flex: 1;
-        color: grey;
-        text-align: right;
-      `}>{game['beaten_on']}</div>
+      <div
+        css={css`
+          flex: 1;
+          font-weight: bold;
+        `}
+      >
+        {game['name']}
+      </div>
+      <div
+        css={css`
+          flex: 1;
+          color: grey;
+          text-align: right;
+        `}
+      >
+        {game['beaten_on']}
+      </div>
     </div>
   );
 };
