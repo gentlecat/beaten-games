@@ -9,6 +9,9 @@ fmt :
 	cd frontend && yarn run prettier
 
 run :
-	npx concurrently "go run main.go" "cd frontend && yarn run bundle" \
+	# Using `concurrently` from npm to run both front-end builds and back-end at
+	# the same time.
+	cd frontend && \
+	npx concurrently "cd .. && go run main.go" "yarn run bundle" \
 		--names go,webpack \
 		--prefix-colors green.bold,blue.bold
