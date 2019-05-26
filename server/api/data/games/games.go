@@ -1,44 +1,18 @@
-package data
+package games
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
-)
-
-const (
-	dbFileName = "database.sqlite3"
-	sqlInit    = `
-		CREATE TABLE IF NOT EXISTS games (
-			name TEXT NOT NULL PRIMARY KEY,
-			note TEXT,
-			beaten_on TIMESTAMP
-			added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		);`
+	data2 "go.roman.zone/beaten-games/server/api/data"
 )
 
 type GameEntity struct {
 	Name     string
 	Note     sql.NullString
-	BeatenOn NullTime
-}
-
-// OpenDB opens database and, if successful, returns a reference to it.
-func OpenDB() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", dbFileName)
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: Check if database file exists before attempting to create a table.
-	_, err = db.Exec(sqlInit)
-	if err != nil {
-		return nil, err
-	}
-	return db, nil
+	BeatenOn data2.NullTime
 }
 
 func AddGame(game GameEntity) error {
-	db, err := OpenDB()
+	db, err := data2.OpenDB()
 	if err != nil {
 		return err
 	}
@@ -77,7 +51,7 @@ func AddGame(game GameEntity) error {
 }
 
 func DeleteGame(name string) (int64, error) {
-	db, err := OpenDB()
+	db, err := data2.OpenDB()
 	if err != nil {
 		return 0, err
 	}
@@ -103,7 +77,7 @@ func DeleteGame(name string) (int64, error) {
 }
 
 func GetAllGames() (games []GameEntity, err error) {
-	db, err := OpenDB()
+	db, err := data2.OpenDB()
 	if err != nil {
 		return nil, err
 	}
