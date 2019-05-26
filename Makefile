@@ -8,6 +8,9 @@ fmt :
 	go fmt ./...
 	cd frontend && yarn run prettier
 
+test :
+	go test ./... -bench .
+
 run :
 	# Using `concurrently` from npm to run both front-end builds and back-end at
 	# the same time.
